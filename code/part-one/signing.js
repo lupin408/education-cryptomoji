@@ -15,7 +15,11 @@ const { randomBytes, createHash } = require('crypto');
  */
 const createPrivateKey = () => {
   // Enter your solution here
-
+  let privKey;
+  do {
+    privKey = randomBytes(32);
+  } while (!secp256k1.privateKeyVerify(privKey));
+  return privKey.toString('hex');
 };
 
 /**
@@ -33,6 +37,7 @@ const createPrivateKey = () => {
  */
 const getPublicKey = privateKey => {
   // Your code here
+  return secp256k1.publicKeyCreate(Buffer.from(privateKey, 'hex')).toString('hex');
 
 };
 
@@ -52,6 +57,16 @@ const getPublicKey = privateKey => {
 const sign = (privateKey, message) => {
   // Your code here
 
+  const hash = createHash('sha256');
+
+  hash.update(message); 
+  var f = Buffer.from(hash.copy().digest('hex'), 'hex');
+  //console.log(Buffer.from(message, 'hex'));
+  //console.log(message, privateKey);
+ 
+  var g = secp256k1.sign(f, Buffer.from(privateKey, 'hex'));
+
+  return (g.signature.toString('hex'));
 };
 
 /**
@@ -75,3 +90,28 @@ module.exports = {
   sign,
   verify
 };
+/*
+let privKey;
+do {
+  privKey = randomBytes(32);
+} while (!secp256k1.privateKeyVerify(privKey));
+
+console.log(privKey);
+
+console.log(randomBytes(32));//
+console.log(secp256k1.publicKeyCreate(Buffer.from('a65bce8d77b9ec6b92b6b63e2700bd28ae49be76bc45299d980248d0ef2fbead', 'hex')));
+
+
+//console.log(secp256k1.sign());
+//var g = secp256k1.sign(Buffer.from(msg, 'hex'), Buffer.from(pk, 'hex'));
+const hash = createHash('sha256');
+
+hash.update('nQebnMyFKqRxighivlYJDwlJDE0GQGPvJtkoL859rmkdcgzTKTB3pcP2giCdX9GKRynT0dkfg1txxHkVSzBolgQtaWCd4oT1iQ1t0g8KrHp99mfrCbhRetuqDiryDt7VhgXWdRrrAYAxqwWbSLSK95GnHLQ1EfGEqEikYwjhAubtVg');
+console.log(hash.copy().digest('utf8'));
+
+//console.log(createHash(msg));
+
+var pk = '95eee4553802be3486d2106e87caf0bee798381ce2570a9ac2222d609ab0c2af';
+var msg = 'nQebnMyFKqRxighivlYJDwlJDE0GQGPvJtkoL859rmkdcgzTKTB3pcP2giCdX9GKRynT0dkfg1txxHkVSzBolgQtaWCd4oT1iQ1t0g8KrHp99mfrCbhRetuqDiryDt7VhgXWdRrrAYAxqwWbSLSK95GnHLQ1EfGEqEikYwjhAubtVg';
+console.log(sign(pk, msg));
+*/
